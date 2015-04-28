@@ -21,8 +21,9 @@ import socket
 import threading
 import time
 import Pyro4
+import daemon
 
-CONFIG_NAME = 'RPi'
+CONFIG_NAME = 'rpi'
 Pyro4.config.SERIALIZER = 'pickle'
 Pyro4.config.SERIALIZERS_ACCEPTED.add('pickle')
 
@@ -70,7 +71,7 @@ class Server(object):
     def stop(self):
         self.run_flag = False
 
-if __name__ == "__main__":
+def start_server()		
     ## Only run when called as a script --- do not run on include.
     #  This way, we can use an interactive shell to test out the class.
     server = Server()
@@ -83,3 +84,11 @@ if __name__ == "__main__":
     except (KeyboardInterrupt, SystemExit):
         server.stop()
         server_thread.join()
+		
+def run():
+    with daemon.DaemonContext():
+        start_server()
+		
+		
+if __name__ == "__main__":
+    	run()
