@@ -44,7 +44,7 @@ class pi:
 
         
     def flipDownUp(self, mirror, position):
-        print "flip mirror = %d to position = %d" % (mirror,position)
+#        print "flip mirror = %d to position = %d" % (mirror,position)
         if(GPIO_PINS[mirror] != None):
             all = self.mirrors
             if position > 0:
@@ -54,7 +54,7 @@ class pi:
                 #all = self.mirrors ^ (1 << mirror)
                 all = self.mirrors & ~(1 << mirror)
                 GPIO.output(GPIO_PINS[mirror],GPIO.LOW)
-        print "flip mirror = %d " % (all)
+ #       print "flip mirror = %d " % (all)
         self.mirrors = all
         return all;
 
