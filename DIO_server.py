@@ -1,4 +1,4 @@
-"""A modular server for Laser classes.
+"""A modular server for RaspberryPi based Digial IO.
 
 Copyright 2014-2015 Mick Phillips (mick.phillips at gmail dot com)
 and 2015 Ian Dobbie (ian.dobbie at gmail dot com)
@@ -41,7 +41,7 @@ class Server(object):
         host = config.get(CONFIG_NAME, 'ipAddress')
         import DIO
         self.pi = DIO.pi()
-        print self.pi
+        #print self.pi
         self.devices={self.pi: 'pi'}
         self.daemon = Pyro4.Daemon(port=int(port), host=host)
         # Start the daemon in a new thread.
