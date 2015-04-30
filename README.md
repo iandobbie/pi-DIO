@@ -1,5 +1,7 @@
 # pi-DIO
 
+Copyright, Ian Dobbie - ian.dobbie@bioch.ox.ac.uk and David Pinto - carandraug@gmail.com 2015
+
 
 A basic pyro server to allow digital IO tp be perfromed from cockpit
 via a RaspberryPi. This uses the GPIO pins to flip 3.3V digital
