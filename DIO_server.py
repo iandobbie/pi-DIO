@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """A modular server for Laser classes.
 
 Copyright 2014-2015 Mick Phillips (mick.phillips at gmail dot com)
@@ -16,12 +17,14 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-import serial
-import socket
+import os
 import threading
 import time
+
 import Pyro4
-import daemon
+
+import readconfig
+import DIO
 
 CONFIG_NAME = 'rpi'
 Pyro4.config.SERIALIZER = 'pickle'
@@ -35,11 +38,9 @@ class Server(object):
 
 
     def run(self):
-        import readconfig
         config = readconfig.config
         port = config.get(CONFIG_NAME, 'port')
         host = config.get(CONFIG_NAME, 'ipAddress')
-        import DIO
         self.pi = DIO.pi()
         print self.pi
         self.devices={self.pi: 'pi'}
@@ -71,7 +72,7 @@ class Server(object):
     def stop(self):
         self.run_flag = False
 
-def start_server()		
+def start_server():		
     ## Only run when called as a script --- do not run on include.
     #  This way, we can use an interactive shell to test out the class.
     server = Server()
@@ -85,10 +86,19 @@ def start_server()
         server.stop()
         server_thread.join()
 		
-def run():
-    with daemon.DaemonContext():
-        start_server()
+def main():
+    ##FIXME This is wrong. We should instead be checking with
+    ##      DIO if we have enough permissions instead.
+    if os.getuid() != 0:
+        raise EnvironmentError("We need root permissions")
+    ## Ideally we would create a nice daemon, create a pidfile, and
+    ## it would be possible check our status and stop from an init.d
+    ## script.  Unfortunately, our version of daemon does not have
+    ## that class, and lockfile does not write the PID.  So we don't
+    ## fork, we don't count on daemon, and rely start-stop-daemon
+    ## to do all of this for us.
+    start_server()
 		
 		
 if __name__ == "__main__":
-    	run()
+    main()
