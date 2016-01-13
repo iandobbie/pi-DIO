@@ -40,7 +40,9 @@ as well.
 1) copy the DIO_server script into init.d, edit to reflect where the
 code is on the system (currently /usr/local/pi_DIO)
 
-2) edit the rpi.conf to reflect the port and IP address of the system.
+2) edit the RPi.conf to reflect the port and IP address of the system.
+
+2b) Check permissions the init.d file and the DIO_server.py must have execute permissions. 
 
 3) Edit DIO.py to reflect what signals are on which pin of the system,
 reference the diagram linked to above to work out which GPIO pin is
