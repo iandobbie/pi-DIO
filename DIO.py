@@ -9,21 +9,11 @@
 # 3 - WF entry mirror, up goes via the WF path, down to the SLM
 # 4 - WF exit mirror, up gives the WF path, down aloows light from SLM to sample
 
-# 1 & 2 shiuld be flipped together and 3 & 4 other staes dont
-# generally make much sense.
-
-# # cmd line test, works on Raspberry Pi B v2.0 with patch cable I made.
-# GPIO.setmmode(GPIO.BCM)
-# GPIO.setup(2,GPIO.OUT, initial=GPIO.HIGH)
-# #set line 2 low
-# GPIO.output(2,GPIO.LOW)
-# #set line 2 high
-# GPIO.output(2,GPIO.HIGH)
-
-
-# GPIO pins for the raspberry pi
-
+#GPIO control
 import RPi.GPIO as GPIO
+#MCP98808 temperature sensors over I2C bus, loses 2 GPIO pins but gains 8
+#temp sensors. 
+import Adafruit_MCP9808.MCP9808 as MCP9808
 
 GPIO_PINS = [2]
 
@@ -38,8 +28,9 @@ class pi:
         # init the GPIO lines as output
         for pin in GPIO_PINS:
             GPIO.setup(pin,GPIO.OUT, initial=GPIO.HIGH)
-            
-        
+        #first temp sensor on default 0x18 address.
+        self.sensor - MCP9808.MCP9808(address=0x18) 
+        self.sensor.begin()
 
 
         
@@ -61,3 +52,6 @@ class pi:
     def flipMirrors(self, positions):
         self.mirrors = positions
         #need code to step through list and set individual posiitons. 
+
+    def get_temperature(self,sensors):
+        return (self.sensor.readTempC())
