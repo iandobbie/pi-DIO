@@ -15,7 +15,7 @@ import RPi.GPIO as GPIO
 #temp sensors. 
 import Adafruit_MCP9808.MCP9808 as MCP9808
 
-GPIO_PINS = [2]
+GPIO_PINS = [17,27,22,10,9,11,5]
 
 # Use BCM GPIO references (naming convention for GPIO pins from Broadcom)
 # instead of physical pin numbers on the Raspberry Pi board
@@ -29,7 +29,7 @@ class pi:
         for pin in GPIO_PINS:
             GPIO.setup(pin,GPIO.OUT, initial=GPIO.HIGH)
         #first temp sensor on default 0x18 address.
-        self.sensor - MCP9808.MCP9808(address=0x18) 
+        self.sensor =MCP9808.MCP9808(address=0x18) 
         self.sensor.begin()
 
 
@@ -53,5 +53,5 @@ class pi:
         self.mirrors = positions
         #need code to step through list and set individual posiitons. 
 
-    def get_temperature(self,sensors):
+    def get_temperature(self):
         return (self.sensor.readTempC())
