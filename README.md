@@ -17,9 +17,20 @@ down on the page).
 The cockpit side code is in devices/pi-DIO.py of
 https://github.com/MicronOxford/cockpit.
 
-Future plans include the ability to run temperature sensors over the
-I2C connections so replacing all the functionality of the NI Digital
-and Analouge board in the UCSF and earlier Oxford OMX's.
+
+This code now runs the Adafruit MCP9808 temperature sensor over i2c but this requires some config.
+
+#Install smb and i2c tools on Pi,
+sudo apt-get install -y python-smbus i2c-tools
+#Install the adafruit MC9808 library, this required the python-dev packages as well.
+#enable i2c using the raspi-config tool (in adavnced options)
+#add i2c-bcm2708 and i2c-dev to the /etc/modules file
+#reboot
+
+
+
+
+
 
 Basic calling conventions:
 

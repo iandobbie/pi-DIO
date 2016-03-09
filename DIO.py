@@ -14,7 +14,14 @@ import RPi.GPIO as GPIO
 #MCP98808 temperature sensors over I2C bus, loses 2 GPIO pins but gains 8
 #temp sensors. 
 import Adafruit_MCP9808.MCP9808 as MCP9808
+#logging function to log the temp locally.
+import logging
+import time
+from logging.handlers import RotatingFileHandler
+#limit log files to about 1 MB. 
+LOG_BYTES = 1000000 
 
+#define the GPIO pins we are using. 
 GPIO_PINS = [17,27,22,10,9,11,5]
 
 # Use BCM GPIO references (naming convention for GPIO pins from Broadcom)
@@ -55,3 +62,27 @@ class pi:
 
     def get_temperature(self):
         return (self.sensor.readTempC())
+
+    #create the log file
+    def create_rotating_log(path):
+        """
+        Creates a rotating log
+        """
+        logger = logging.getLogger("TempratureLog")
+        logger.setLevel(logging.INFO)
+        # add a rotating handler
+        handler = RotatingFileHandler(self.generateLogFilename(),
+                                      maxBytes=LOG_BYTES, backupCount=5)
+        formatter = logging.Formatter('%(asctime)s - %(message)s')
+
+        logger.addHandler(handler)
+ 
+    for i in range(10):
+        logger.info("This is test log line %s" % i)
+        time.sleep(1.5)
+
+    def generateLogFilename(self):
+        timestr=datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+        filename="ValueLog"+timestr+".log"
+        filename = os.path.join("logs", filename)
+        return filename
