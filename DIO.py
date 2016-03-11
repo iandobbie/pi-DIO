@@ -18,6 +18,7 @@ import Adafruit_MCP9808.MCP9808 as MCP9808
 import logging
 import time
 from logging.handlers import RotatingFileHandler
+import threading
 #limit log files to about 1 MB. 
 LOG_BYTES = 1000000 
 
@@ -73,7 +74,7 @@ class pi:
         return (self.temperature)
 
     #create the log file
-    def create_rotating_log(path):
+    def create_rotating_log(self):
         """
         Creates a rotating log
         """
@@ -83,6 +84,7 @@ class pi:
         handler = RotatingFileHandler(self.generateLogFilename(),
                                       maxBytes=LOG_BYTES, backupCount=5)
         formatter = logging.Formatter('%(asctime)s - %(message)s')
+        self.logger.setFormatter(formatter)
 
         self.logger.addHandler(handler)
  
@@ -98,9 +100,10 @@ class pi:
 
     #function to read temperature at set update frequency.
     #runs in a separate thread.
-    def updateStatus(self):
+    def updateTemps(self):
         """Runs in a separate thread publish status updates."""
         self.temperature = None
+        self.create_rotating_log
 
         while True:
             #take readsPerUpdate measurements and average to reduce digitisation
