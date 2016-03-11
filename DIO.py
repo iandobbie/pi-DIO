@@ -17,6 +17,8 @@ import Adafruit_MCP9808.MCP9808 as MCP9808
 #logging function to log the temp locally.
 import logging
 import time
+import datetime
+import os
 from logging.handlers import RotatingFileHandler
 import threading
 #limit log files to about 1 MB. 
@@ -78,23 +80,19 @@ class pi:
         """
         Creates a rotating log
         """
-        self.logger = logging.getLogger("TempratureLog")
+        self.logger = logging.getLogger('TempratureLog')
         self.logger.setLevel(logging.INFO)
         # add a rotating handler
-        handler = RotatingFileHandler(self.generateLogFilename(),
+        self.handler = RotatingFileHandler(self.generateLogFilename(),
                                       maxBytes=LOG_BYTES, backupCount=5)
+        self.handler.setLevel(logging.INFO)
         formatter = logging.Formatter('%(asctime)s - %(message)s')
-        self.logger.setFormatter(formatter)
-
-        self.logger.addHandler(handler)
+        self.handler.setFormatter(formatter)
+        self.logger.addHandler(self.handler)
  
-        for i in range(10):
-            self.logger.info("This is test log line %s" % i)
-            time.sleep(1.5)
-            
     def generateLogFilename(self):
         timestr=datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
-        filename="ValueLog"+timestr+".log"
+        filename="Temperature-"+timestr+".log"
         filename = os.path.join("logs", filename)
         return filename
 
@@ -113,9 +111,8 @@ class pi:
                 try:
                     localTemperature = self.sensor.readTempC()
                     tempave+=localTemperature
-                    print localTemperature
                 except:
                     localTemperature=None
-
                 time.sleep(self.updatePeriod/self.readsPerUpdate)
             self.temperature=tempave/self.readsPerUpdate
+            self.logger.info("Temperature =  %s" % self.temperature)
