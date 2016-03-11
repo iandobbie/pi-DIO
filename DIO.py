@@ -96,6 +96,14 @@ class pi:
         filename = os.path.join("logs", filename)
         return filename
 
+    #function to change updatePeriod
+    def tempUpdatePeriod(self,period):
+        self.updatePeriod=period
+
+    #function to change readsPerUpdate
+    def tempReadsPerUpdate(self,reads):
+        self.readsPerUpdate=reads
+    
     #function to read temperature at set update frequency.
     #runs in a separate thread.
     def updateTemps(self):
