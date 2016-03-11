@@ -26,6 +26,7 @@ LOG_BYTES = 1000000
 
 #define the GPIO pins we are using. 
 GPIO_PINS = [17,27,22,10,9,11,5]
+TEMP_SENSORS = [0x18]
 
 # Use BCM GPIO references (naming convention for GPIO pins from Broadcom)
 # instead of physical pin numbers on the Raspberry Pi board
@@ -40,10 +41,11 @@ class pi:
         self.readsPerUpdate=10
         for pin in GPIO_PINS:
             GPIO.setup(pin,GPIO.OUT, initial=GPIO.HIGH)
-        #first temp sensor on default 0x18 address.
-        self.sensor =MCP9808.MCP9808(address=0x18) 
-        self.sensor.begin()
-
+        #Open and start all temp sensors
+        self.sensors = []
+        for sensor in TEMP_SENSORS:
+            self.sensors.append(MCP9808.MCP9808(address=sensor))
+            self.sensors[-1].begin()
         # A thread to publish status updates.
         # This reads temperatures and logs them
         self.statusThread = threading.Thread(target=self.updateTemps)
@@ -75,6 +77,7 @@ class pi:
         self.mirrors = positions
         #need code to step through list and set individual posiitons. 
 
+    #return the list of current temperatures.     
     def get_temperature(self):
         return (self.temperature)
 
@@ -111,19 +114,23 @@ class pi:
     #runs in a separate thread.
     def updateTemps(self):
         """Runs in a separate thread publish status updates."""
-        self.temperature = None
+        self.temperature = None*len(self.sensors)
         self.create_rotating_log()
 
         while True:
-            tempave=0.0
+            #zero the new averages.
+            for i in xrange(len(self.sensors)):
+                tempave[i]=0.0
             #take readsPerUpdate measurements and average to reduce digitisation
             #errors and give better accuracy.
             for i in range(int(self.readsPerUpdate)):
-                try:
-                    localTemperature = self.sensor.readTempC()
-                    tempave+=localTemperature
-                except:
-                    localTemperature=None
+                for i in xrange(len(self.sensors)):
+                    try:
+                        localTemperature = self.sensor[i].readTempC()
+                        tempave[i]+=localTemperature
+                    except:
+                        localTemperature=None
                 time.sleep(self.updatePeriod/self.readsPerUpdate)
-            self.temperature=tempave/self.readsPerUpdate
-            self.logger.info("Temperature =  %s" % self.temperature)
+            for i in xrange(len(self.sensors)):    
+                self.temperature[i]=tempave[i]/self.readsPerUpdate
+                self.logger.info("Temperature%s =  %s" %(i,self.temperature)
