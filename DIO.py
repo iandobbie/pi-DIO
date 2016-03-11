@@ -128,11 +128,11 @@ class pi:
             for i in range(int(self.readsPerUpdate)):
                 for i in xrange(len(self.sensors)):
                     try:
-                        localTemperature = self.sensor[i].readTempC()
+                        localTemperature = self.sensors[i].readTempC()
                         tempave[i]+=localTemperature
                     except:
                         localTemperature=None
                 time.sleep(self.updatePeriod/self.readsPerUpdate)
             for i in xrange(len(self.sensors)):    
                 self.temperature[i]=tempave[i]/self.readsPerUpdate
-                self.logger.info("Temperature%s =  %s" %(i,self.temperature))
+                self.logger.info("Temperature-%s =  %s" %(i,self.temperature[i]))
