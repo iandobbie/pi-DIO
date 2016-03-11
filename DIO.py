@@ -103,7 +103,7 @@ class pi:
     def updateTemps(self):
         """Runs in a separate thread publish status updates."""
         self.temperature = None
-        self.create_rotating_log
+        self.create_rotating_log()
 
         while True:
             #take readsPerUpdate measurements and average to reduce digitisation
