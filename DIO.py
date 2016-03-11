@@ -33,11 +33,20 @@ class pi:
     def __init__(self):
         self.mirrors = 0    # state of all mirrors
         # init the GPIO lines as output
+        self.updatePeriod=60.0
+        self.readsPerUpdate=10
         for pin in GPIO_PINS:
             GPIO.setup(pin,GPIO.OUT, initial=GPIO.HIGH)
         #first temp sensor on default 0x18 address.
         self.sensor =MCP9808.MCP9808(address=0x18) 
         self.sensor.begin()
+
+        # A thread to publish status updates.
+        # This reads temperatures and logs them
+        self.statusThread = threading.Thread(target=self.updateTemps)
+        self.statusThread.Daemon = True
+        self.statusThread.start()
+         
 
 
         
@@ -61,28 +70,47 @@ class pi:
         #need code to step through list and set individual posiitons. 
 
     def get_temperature(self):
-        return (self.sensor.readTempC())
+        return (self.temperature)
 
     #create the log file
     def create_rotating_log(path):
         """
         Creates a rotating log
         """
-        logger = logging.getLogger("TempratureLog")
-        logger.setLevel(logging.INFO)
+        self.logger = logging.getLogger("TempratureLog")
+        self.logger.setLevel(logging.INFO)
         # add a rotating handler
         handler = RotatingFileHandler(self.generateLogFilename(),
                                       maxBytes=LOG_BYTES, backupCount=5)
         formatter = logging.Formatter('%(asctime)s - %(message)s')
 
-        logger.addHandler(handler)
+        self.logger.addHandler(handler)
  
-    for i in range(10):
-        logger.info("This is test log line %s" % i)
-        time.sleep(1.5)
-
+        for i in range(10):
+            self.logger.info("This is test log line %s" % i)
+            time.sleep(1.5)
+            
     def generateLogFilename(self):
         timestr=datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
         filename="ValueLog"+timestr+".log"
         filename = os.path.join("logs", filename)
         return filename
+
+    #function to read temperature at set update frequency.
+    #runs in a separate thread.
+    def updateStatus(self):
+        """Runs in a separate thread publish status updates."""
+        self.temperature = None
+
+        while True:
+            #take readsPerUpdate measurements and average to reduce digitisation
+            #errors and give better accuracy.
+            for i in range(int(self.readPerUpdate)):
+                try:
+                    localTemperature = self.sensor.readTempC()
+                    tempave+=localTemperature
+                except:
+                    localTemperature=None
+
+                time.sleep(self.updatePeriod/self.readsPerUpdate)
+            self.temperature=tempave/self.readsPerUpdate
