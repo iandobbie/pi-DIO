@@ -49,8 +49,10 @@ class pi:
         self.statusThread = threading.Thread(target=self.updateTemps)
         self.statusThread.Daemon = True
         self.statusThread.start()
-         
 
+    #what to do on devise disable?
+    def disable(self):
+        pass
 
         
     def flipDownUp(self, mirror, position):
