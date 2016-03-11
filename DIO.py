@@ -106,6 +106,7 @@ class pi:
         self.create_rotating_log()
 
         while True:
+            tempave=0.0
             #take readsPerUpdate measurements and average to reduce digitisation
             #errors and give better accuracy.
             for i in range(int(self.readsPerUpdate)):
