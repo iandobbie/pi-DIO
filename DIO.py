@@ -108,10 +108,11 @@ class pi:
         while True:
             #take readsPerUpdate measurements and average to reduce digitisation
             #errors and give better accuracy.
-            for i in range(int(self.readPerUpdate)):
+            for i in range(int(self.readsPerUpdate)):
                 try:
                     localTemperature = self.sensor.readTempC()
                     tempave+=localTemperature
+                    print localTemperature
                 except:
                     localTemperature=None
 
