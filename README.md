@@ -29,9 +29,6 @@ sudo apt-get install -y python-smbus i2c-tools
 
 
 
-
-
-
 Basic calling conventions:
 
 DIO.flipDownUp(mirror, position)
@@ -40,6 +37,10 @@ position=True flips up, position=False flips down, the relevant
 mirror. Mirrors start at 0 (it is an index into GPIO_PINS array to say
 which pin to flip for which logical mirror.
 
+DIO.get_temperature() returns an averaged temperature reading
+Averages are based on two variables readsPerUpdate and updatePeriod
+
+Temperature is logged to a rotating log file.
 
 Instalation:
 
