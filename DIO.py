@@ -22,6 +22,7 @@ import os
 from logging.handlers import RotatingFileHandler
 import threading
 import readconfig
+import re
 #limit log files to about 1 MB. 
 LOG_BYTES = 1000000 
 CONFIG_NAME = 'rpi'
@@ -41,7 +42,7 @@ class pi:
         config = readconfig.config
         GPIO_linesString = config.get(CONFIG_NAME, 'GPIO_lines')
         temp_sensorsString = config.get(CONFIG_NAME, 'temp_sensors')
-        parsedGPIO = research(GPIO_LINES_PAT,GPIO_linesString)
+        parsedGPIO = re.search(GPIO_LINES_PAT,GPIO_linesString)
         if not parsed:
             raise Exception('Bad Config: Cannot parse GPIO lines')
         else:
