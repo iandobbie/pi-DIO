@@ -20,29 +20,15 @@ https://github.com/MicronOxford/cockpit.
 
 This code now runs the Adafruit MCP9808 temperature sensor over i2c but this requires some config.
 
-#Install smb and i2c tools on Pi,
+1.Install smb and i2c tools on Pi,
 sudo apt-get install -y python-smbus i2c-tools
-#Install the adafruit MC9808 library, this required the python-dev packages as well.
-#enable i2c using the raspi-config tool (in adavnced options)
-#add i2c-bcm2708 and i2c-dev to the /etc/modules file
-#reboot
+2.Install the adafruit MC9808 library, this required the python-dev packages as well.
+enable i2c using the raspi-config tool (in adavnced options)
+3.add i2c-bcm2708 and i2c-dev to the /etc/modules file
+4.reboot
 
 
-
-Basic calling conventions:
-
-DIO.flipDownUp(mirror, position)
-
-position=True flips up, position=False flips down, the relevant
-mirror. Mirrors start at 0 (it is an index into GPIO_PINS array to say
-which pin to flip for which logical mirror.
-
-DIO.get_temperature() returns an averaged temperature reading
-Averages are based on two variables readsPerUpdate and updatePeriod
-
-Temperature is logged to a rotating log file.
-
-Instalation:
+#Instalation:
 
 0) Install python and the raspberryPI GPIO python tools. We did this
 by gettting a pretty standard raspbian install. I alos had to add
@@ -62,4 +48,33 @@ where on the connector. This should be moved into config file.
 
 4) test to see it starts.
 
+
+
+#Basic calling conventions:
+
+DIO.flipDownUp(mirror, position)
+
+position=True flips up, position=False flips down, the relevant
+mirror. Mirrors start at 0 (it is an index into GPIO_PINS array to say
+which pin to flip for which logical mirror.
+
+DIO.get_temperature() returns an averaged temperature reading
+Averages are based on two variables readsPerUpdate and updatePeriod
+
+Temperature is logged to a rotating log file.
+
+#Brief summary of the config file format
+
+As is the cockpit convention it has a section heading in this case it is "[rpi]"
+
+ipAddress: is the current host ip address, needed as the system may have
+	   several IPs and we need to know what to listen on.
+
+port: Port to list on. Current standard is 7768.
+
+GPIO lines: list of lines to use, currently in order
+     	    [17,27,22,10,9,11,5]
+
+TEMP_SENSORS = list of the i2c temp sensors addresses default first on
+	       is [0x18]
  
