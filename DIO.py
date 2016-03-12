@@ -21,9 +21,10 @@ import datetime
 import os
 from logging.handlers import RotatingFileHandler
 import threading
+import readconfig
 #limit log files to about 1 MB. 
 LOG_BYTES = 1000000 
-
+CONFIG_NAME = 'rpi'
 #define the GPIO pins we are using. 
 GPIO_PINS = [17,27,22,10,9,11,5]
 TEMP_SENSORS = [0x18]
@@ -35,6 +36,9 @@ GPIO.setmode(GPIO.BCM)
 
 class pi:
     def __init__(self):
+        config = readconfig.config
+        self.GPIO_lines = config.get(CONFIG_NAME, 'GPIO_lines')
+        self.temp_sensors = config.get(CONFIG_NAME, 'temp_sensors')
         self.mirrors = 0    # state of all mirrors
         # init the GPIO lines as output
         self.updatePeriod=60.0
