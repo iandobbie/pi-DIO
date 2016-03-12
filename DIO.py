@@ -108,7 +108,7 @@ class pi:
     def generateLogFilename(self):
         timestr=datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
         filename="Temperature-"+timestr+".log"
-        filename = os.path.join("logs", filename)
+        filename = os.path.join("/usr/local/pi-DIO/logs", filename)
         return filename
 
     #function to change updatePeriod
