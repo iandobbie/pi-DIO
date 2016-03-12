@@ -26,11 +26,6 @@ import re
 #limit log files to about 1 MB. 
 LOG_BYTES = 1000000 
 CONFIG_NAME = 'rpi'
-GPIO_LINES_PAT = r"(?P<GPIO_lines>\'\s*\d*\s*\')"
-TEMP_SENSORS_PAT = r"(?P<temp_sensors>\'\s*\w*\s*\')"
-#define the GPIO pins we are using. 
-#GPIO_PINS = [17,27,22,10,9,11,5]
-#TEMP_SENSORS = [0x18]
 
 # Use BCM GPIO references (naming convention for GPIO pins from Broadcom)
 # instead of physical pin numbers on the Raspberry Pi board
@@ -41,42 +36,32 @@ class pi:
     def __init__(self):
         config = readconfig.config
         GPIO_linesString = config.get(CONFIG_NAME, 'GPIO_lines')
-        print GPIO_linesString
         self.GPIO_lines=[]
         for line in GPIO_linesString.split(','):
-            print line
             self.GPIO_lines.append(int(line))
-        print self.GPIO_lines[0]
-#        temp_sensorsString = config.get(CONFIG_NAME, 'temp_sensors')
-#        parsedGPIO = re.search(GPIO_LINES_PAT,GPIO_linesString)
-#        if not parsedGPIO:
-#            raise Exception('Bad Config: Cannot parse GPIO lines')
-#        else:
-#            gpiostr = parsed.groupdict()['GPIO_lines']
-#        self.GPIO_lines=eval(gpiostr)
-        print self.GPIO_lines
-    
-
+        temp_sensors_linesString = config.get(CONFIG_NAME, 'temp_sensors')
+        self.temp_sensors=[]
+        for line in temp_sensors_linesString.split(','):
+            self.temp_sensors.append(int(line,0))
         self.mirrors = 0    # state of all mirrors
         # init the GPIO lines as output
         self.updatePeriod=60.0
         self.readsPerUpdate=10
-        print self.GPIO_lines
-        print self.temp_sensors
         for pin in self.GPIO_lines:
             GPIO.setup(pin,GPIO.OUT, initial=GPIO.HIGH)
         #Open and start all temp sensors
         self.sensors = []
         for sensor in self.temp_sensors:
             self.sensors.append(MCP9808.MCP9808(address=sensor))
+            #starts the last one added
             self.sensors[-1].begin()
-        # A thread to publish status updates.
+        # A thread to record periodic temperature readings
         # This reads temperatures and logs them
         self.statusThread = threading.Thread(target=self.updateTemps)
         self.statusThread.Daemon = True
         self.statusThread.start()
 
-    #what to do on devise disable?
+    #what to do on device disable?
     def disable(self):
         pass
 
@@ -152,8 +137,7 @@ class pi:
             for i in range(int(self.readsPerUpdate)):
                 for i in xrange(len(self.sensors)):
                     try:
-                        localTemperature = self.sensors[i].readTempC()
-                        tempave[i]+=localTemperature
+                        tempave[i]+=self.sensors[i].readTempC()
                     except:
                         localTemperature=None
                 time.sleep(self.updatePeriod/self.readsPerUpdate)
