@@ -26,8 +26,8 @@ import readconfig
 LOG_BYTES = 1000000 
 CONFIG_NAME = 'rpi'
 #define the GPIO pins we are using. 
-GPIO_PINS = [17,27,22,10,9,11,5]
-TEMP_SENSORS = [0x18]
+#GPIO_PINS = [17,27,22,10,9,11,5]
+#TEMP_SENSORS = [0x18]
 
 # Use BCM GPIO references (naming convention for GPIO pins from Broadcom)
 # instead of physical pin numbers on the Raspberry Pi board
@@ -45,11 +45,11 @@ class pi:
         self.readsPerUpdate=10
         print self.GPIO_lines
         print self.temp_sensors
-        for pin in GPIO_PINS:
+        for pin in self.GPIO_lines:
             GPIO.setup(pin,GPIO.OUT, initial=GPIO.HIGH)
         #Open and start all temp sensors
         self.sensors = []
-        for sensor in TEMP_SENSORS:
+        for sensor in self.temp_sensors:
             self.sensors.append(MCP9808.MCP9808(address=sensor))
             self.sensors[-1].begin()
         # A thread to publish status updates.
