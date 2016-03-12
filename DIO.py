@@ -39,6 +39,8 @@ class pi:
         # init the GPIO lines as output
         self.updatePeriod=60.0
         self.readsPerUpdate=10
+        print self.GPIO_lines
+        print self.temp_sensors
         for pin in GPIO_PINS:
             GPIO.setup(pin,GPIO.OUT, initial=GPIO.HIGH)
         #Open and start all temp sensors
