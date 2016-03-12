@@ -41,11 +41,7 @@ class Server(object):
         config = readconfig.config
         port = config.get(CONFIG_NAME, 'port')
         host = config.get(CONFIG_NAME, 'ipAddress')
-        GPIO_lines = config.get(CONFIG_NAME, 'GPIO_lines')
-        temp_sensors = config.get(CONFIG_NAME, 'temp_sensors')
         self.pi = DIO.pi()
-        self.pi.GPIO_lines=GPIO_lines
-        self.pi.temp_sensors = temp_sensors
         print self.pi
         self.devices={self.pi: 'pi'}
         self.daemon = Pyro4.Daemon(port=int(port), host=host)
