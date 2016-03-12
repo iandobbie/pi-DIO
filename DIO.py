@@ -26,7 +26,7 @@ import re
 #limit log files to about 1 MB. 
 LOG_BYTES = 1000000 
 CONFIG_NAME = 'rpi'
-GPIO_LINES_PAT = r"(?P<GPIO_lines>\'\s*\w*\s*\')"
+GPIO_LINES_PAT = r"(?P<GPIO_lines>\'\s*\d*\s*\')"
 TEMP_SENSORS_PAT = r"(?P<temp_sensors>\'\s*\w*\s*\')"
 #define the GPIO pins we are using. 
 #GPIO_PINS = [17,27,22,10,9,11,5]
@@ -41,14 +41,20 @@ class pi:
     def __init__(self):
         config = readconfig.config
         GPIO_linesString = config.get(CONFIG_NAME, 'GPIO_lines')
-        temp_sensorsString = config.get(CONFIG_NAME, 'temp_sensors')
-        parsedGPIO = re.search(GPIO_LINES_PAT,GPIO_linesString)
-        if not parsedGPIO:
-            raise Exception('Bad Config: Cannot parse GPIO lines')
-        else:
-            gpiostr = parsed.groupdict()['GPIO_lines']
-            self.GPIO_lines=eval(gpiostr)
-        print GPIO_lines
+        print GPIO_linesString
+        self.GPIO_lines=[]
+        for line in GPIO_linesString.split(','):
+            print line
+            self.GPIO_lines.append(int(line))
+        print self.GPIO_lines[0]
+#        temp_sensorsString = config.get(CONFIG_NAME, 'temp_sensors')
+#        parsedGPIO = re.search(GPIO_LINES_PAT,GPIO_linesString)
+#        if not parsedGPIO:
+#            raise Exception('Bad Config: Cannot parse GPIO lines')
+#        else:
+#            gpiostr = parsed.groupdict()['GPIO_lines']
+#        self.GPIO_lines=eval(gpiostr)
+        print self.GPIO_lines
     
 
         self.mirrors = 0    # state of all mirrors
