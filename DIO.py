@@ -43,7 +43,7 @@ class pi:
         GPIO_linesString = config.get(CONFIG_NAME, 'GPIO_lines')
         temp_sensorsString = config.get(CONFIG_NAME, 'temp_sensors')
         parsedGPIO = re.search(GPIO_LINES_PAT,GPIO_linesString)
-        if not parsed:
+        if not parsedGPIO:
             raise Exception('Bad Config: Cannot parse GPIO lines')
         else:
             gpiostr = parsed.groupdict()['GPIO_lines']
