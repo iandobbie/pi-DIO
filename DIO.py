@@ -14,8 +14,18 @@ import RPi.GPIO as GPIO
 #MCP98808 temperature sensors over I2C bus, loses 2 GPIO pins but gains 8
 #temp sensors. 
 import Adafruit_MCP9808.MCP9808 as MCP9808
-
-GPIO_PINS = [17,27,22,10,9,11,5]
+#logging function to log the temp locally.
+import logging
+import time
+import datetime
+import os
+from logging.handlers import RotatingFileHandler
+import threading
+import readconfig
+import re
+#limit log files to about 1 MB. 
+LOG_BYTES = 1000000 
+CONFIG_NAME = 'rpi'
 
 # Use BCM GPIO references (naming convention for GPIO pins from Broadcom)
 # instead of physical pin numbers on the Raspberry Pi board
@@ -24,18 +34,41 @@ GPIO.setmode(GPIO.BCM)
 
 class pi:
     def __init__(self):
+        config = readconfig.config
+        GPIO_linesString = config.get(CONFIG_NAME, 'GPIO_lines')
+        self.GPIO_lines=[]
+        for line in GPIO_linesString.split(','):
+            self.GPIO_lines.append(int(line))
+        temp_sensors_linesString = config.get(CONFIG_NAME, 'temp_sensors')
+        self.temp_sensors=[]
+        for line in temp_sensors_linesString.split(','):
+            self.temp_sensors.append(int(line,0))
         self.mirrors = 0    # state of all mirrors
         # init the GPIO lines as output
-        for pin in GPIO_PINS:
+        self.updatePeriod=60.0
+        self.readsPerUpdate=10
+        for pin in self.GPIO_lines:
             GPIO.setup(pin,GPIO.OUT, initial=GPIO.HIGH)
-        #first temp sensor on default 0x18 address.
-        self.sensor =MCP9808.MCP9808(address=0x18) 
-        self.sensor.begin()
+        #Open and start all temp sensors
+        self.sensors = []
+        for sensor in self.temp_sensors:
+            self.sensors.append(MCP9808.MCP9808(address=sensor))
+            #starts the last one added
+            self.sensors[-1].begin()
+        # A thread to record periodic temperature readings
+        # This reads temperatures and logs them
+        self.statusThread = threading.Thread(target=self.updateTemps)
+        self.statusThread.Daemon = True
+        self.statusThread.start()
 
+    #what to do on device disable?
+    def disable(self):
+        pass
 
         
     def flipDownUp(self, mirror, position):
-#        print "flip mirror = %d to position = %d" % (mirror,position)
+        self.logger.info("Flip =  %s - %s" % (mirror,position))        
+        #        print "flip mirror = %d to position = %d" % (mirror,position)
         if(GPIO_PINS[mirror] != None):
             all = self.mirrors
             if position > 0:
@@ -53,5 +86,61 @@ class pi:
         self.mirrors = positions
         #need code to step through list and set individual posiitons. 
 
+    #return the list of current temperatures.     
     def get_temperature(self):
-        return (self.sensor.readTempC())
+        return (self.temperature)
+
+    #create the log file
+    def create_rotating_log(self):
+        """
+        Creates a rotating log
+        """
+        self.logger = logging.getLogger('TempratureLog')
+        self.logger.setLevel(logging.INFO)
+        # add a rotating handler
+        self.handler = RotatingFileHandler(self.generateLogFilename(),
+                                      maxBytes=LOG_BYTES, backupCount=5)
+        self.handler.setLevel(logging.INFO)
+        formatter = logging.Formatter('%(asctime)s - %(message)s')
+        self.handler.setFormatter(formatter)
+        self.logger.addHandler(self.handler)
+ 
+    def generateLogFilename(self):
+        timestr=datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+        filename="Temperature-"+timestr+".log"
+        filename = os.path.join("/usr/local/pi-DIO/logs", filename)
+        return filename
+
+    #function to change updatePeriod
+    def tempUpdatePeriod(self,period):
+        self.updatePeriod=period
+
+    #function to change readsPerUpdate
+    def tempReadsPerUpdate(self,reads):
+        self.readsPerUpdate=reads
+    
+    #function to read temperature at set update frequency.
+    #runs in a separate thread.
+    def updateTemps(self):
+        """Runs in a separate thread publish status updates."""
+        self.temperature = [None] * len(self.sensors)
+        tempave = [None] * len(self.sensors)
+
+        self.create_rotating_log()
+
+        while True:
+            #zero the new averages.
+            for i in xrange(len(self.sensors)):
+                tempave[i]=0.0
+            #take readsPerUpdate measurements and average to reduce digitisation
+            #errors and give better accuracy.
+            for i in range(int(self.readsPerUpdate)):
+                for i in xrange(len(self.sensors)):
+                    try:
+                        tempave[i]+=self.sensors[i].readTempC()
+                    except:
+                        localTemperature=None
+                time.sleep(self.updatePeriod/self.readsPerUpdate)
+            for i in xrange(len(self.sensors)):    
+                self.temperature[i]=tempave[i]/self.readsPerUpdate
+                self.logger.info("Temperature-%s =  %s" %(i,self.temperature[i]))

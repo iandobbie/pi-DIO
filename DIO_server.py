@@ -66,7 +66,7 @@ class Server(object):
             # ... make sure emission is switched off
             device.disable()
             # ... relase the COM port.
-            device.connection.close()
+#            device.connection.close()
 
 
     def stop(self):
