@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/python
 """A modular server for Laser classes.
 
 Copyright 2014-2015 Mick Phillips (mick.phillips at gmail dot com)
