@@ -52,6 +52,7 @@ class pi:
         #Open and start all temp sensors
         self.sensors = []
         for sensor in self.temp_sensors:
+            print sensor
             self.sensors.append(MCP9808.MCP9808(address=sensor))
             #starts the last one added
             self.sensors[-1].begin()
@@ -69,15 +70,15 @@ class pi:
     def flipDownUp(self, mirror, position):
         self.logger.info("Flip =  %s - %s" % (mirror,position))        
         #        print "flip mirror = %d to position = %d" % (mirror,position)
-        if(GPIO_PINS[mirror] != None):
+        if(self.GPIO_lines[mirror] != None):
             all = self.mirrors
             if position > 0:
                 all = self.mirrors | (1 << mirror)
-                GPIO.output(GPIO_PINS[mirror],GPIO.HIGH)
+                GPIO.output(self.GPIO_lines[mirror],GPIO.HIGH)
             else:
                 #all = self.mirrors ^ (1 << mirror)
                 all = self.mirrors & ~(1 << mirror)
-                GPIO.output(GPIO_PINS[mirror],GPIO.LOW)
+                GPIO.output(self.GPIO_lines[mirror],GPIO.LOW)
  #       print "flip mirror = %d " % (all)
         self.mirrors = all
         return all;
