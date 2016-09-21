@@ -14,6 +14,8 @@ import RPi.GPIO as GPIO
 #MCP98808 temperature sensors over I2C bus, loses 2 GPIO pins but gains 8
 #temp sensors. 
 import Adafruit_MCP9808.MCP9808 as MCP9808
+#library for TSYS01 sensor
+import TSYS01.TSYS01
 #logging function to log the temp locally.
 import logging
 import time
@@ -39,9 +41,21 @@ class pi:
         self.GPIO_lines=[]
         for line in GPIO_linesString.split(','):
             self.GPIO_lines.append(int(line))
-        temp_sensors_linesString = config.get(CONFIG_NAME, 'temp_sensors')
-        self.temp_sensors=[]
+        MCP9808_sensors_linesString = config.get(CONFIG_NAME, 'MCP9808_temp_sensors')
+        TSYS01_sensors_linesString = config.get(CONFIG_NAME, 'MCP9808_temp_sensors')
+
+        self.sensors = []
         for line in temp_sensors_linesString.split(','):
+            sensor_type,i2c_address =line.split(':')
+            print "adding sensor "+sensor_type + i2c_address
+ 
+            if (sensor_type is 'MCP9808'):
+                self.sensors.append(MCP9808.MCP9808(address=i2c_address))
+                #starts the last one added
+                self.sensors[-1].begin()
+            elif (sensor_type is 'TSYS01'):
+                self.sensors.append(TSYS01.TSYS01(address=i2c_address))
+
             self.temp_sensors.append(int(line,0))
         self.mirrors = 0    # state of all mirrors
         # init the GPIO lines as output
@@ -50,12 +64,6 @@ class pi:
         for pin in self.GPIO_lines:
             GPIO.setup(pin,GPIO.OUT, initial=GPIO.HIGH)
         #Open and start all temp sensors
-        self.sensors = []
-        for sensor in self.temp_sensors:
-            print sensor
-            self.sensors.append(MCP9808.MCP9808(address=sensor))
-            #starts the last one added
-            self.sensors[-1].begin()
         # A thread to record periodic temperature readings
         # This reads temperatures and logs them
         self.statusThread = threading.Thread(target=self.updateTemps)
