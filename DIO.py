@@ -22,6 +22,7 @@ import time
 import datetime
 import os
 from logging.handlers import RotatingFileHandler
+import Pyro4
 import threading
 import readconfig
 import re
@@ -33,7 +34,7 @@ CONFIG_NAME = 'rpi'
 # instead of physical pin numbers on the Raspberry Pi board
 GPIO.setmode(GPIO.BCM)
 
-
+@Pyro4.expose
 class pi:
     def __init__(self):
         config = readconfig.config
