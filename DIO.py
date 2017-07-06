@@ -132,12 +132,12 @@ class pi:
     #runs in a separate thread.
     def updateTemps(self):
         """Runs in a separate thread publish status updates."""
+        self.create_rotating_log()
         if (len(self.sensors)==0):
             return
         self.temperature = [None] * len(self.sensors)
         tempave = [None] * len(self.sensors)
 
-        self.create_rotating_log()
 
         while True:
             #zero the new averages.
