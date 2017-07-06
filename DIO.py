@@ -41,9 +41,9 @@ class pi:
         self.GPIO_lines=[]
         for line in GPIO_linesString.split(','):
             self.GPIO_lines.append(int(line))
-        temp_sensors_linesString = config.get(CONFIG_NAME, 'temp_sensors',None)
+        temp_sensors_linesString = config.get(CONFIG_NAME, 'temp_sensors')
         self.sensors = []
-        if (temp_sensors_linesString is not None):
+        if (len(temp_sensors_linesString) > 5):
             for line in temp_sensors_linesString.split(','):
                 sensor_type,i2c_address =line.split(':')
                 i2c_address=int(i2c_address,0) 
