@@ -107,7 +107,7 @@ class pi:
         self.logger.setLevel(logging.INFO)
         # add a rotating handler
         self.handler = RotatingFileHandler(self.generateLogFilename(),
-                                      maxBytes=LOG_BYTES, backupCount=5)
+                                           maxBytes=LOG_BYTES, backupCount=50)
         self.handler.setLevel(logging.INFO)
         formatter = logging.Formatter('%(asctime)s - %(message)s')
         self.handler.setFormatter(formatter)
