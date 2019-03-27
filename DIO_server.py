@@ -42,7 +42,7 @@ class Server(object):
         port = config.get(CONFIG_NAME, 'port')
         host = config.get(CONFIG_NAME, 'ipAddress')
         self.pi = DIO.pi()
-        print self.pi
+        print (self.pi)
         self.devices={self.pi: 'pi'}
         self.daemon = Pyro4.Daemon(port=int(port), host=host)
         # Start the daemon in a new thread.
