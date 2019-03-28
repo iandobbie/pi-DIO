@@ -67,9 +67,11 @@ class pi:
         #Open and start all temp sensors
         # A thread to record periodic temperature readings
         # This reads temperatures and logs them
-        self.statusThread = threading.Thread(target=self.updateTemps)
-        self.statusThread.Daemon = True
-        self.statusThread.start()
+        if self.sensors:
+            #only strart thread if we have a sensor
+            self.statusThread = threading.Thread(target=self.updateTemps)
+            self.statusThread.Daemon = True
+            self.statusThread.start()
 
     #what to do on device disable?
     def disable(self):
@@ -138,6 +140,9 @@ class pi:
 
         self.create_rotating_log()
 
+        if len(self.sensors == 0) :
+            return()
+        
         while True:
             #zero the new averages.
             for i in xrange(len(self.sensors)):
