@@ -45,17 +45,18 @@ class pi:
         temp_sensors_linesString = config.get(CONFIG_NAME, 'temp_sensors')
         self.sensors = []
         for line in temp_sensors_linesString.split(','):
-            sensor_type,i2c_address =line.split(':')
-            i2c_address=int(i2c_address,0) 
-            print ("adding sensor: "+sensor_type +" Adress: %d " % i2c_address)
-            if (sensor_type == 'MCP9808'):
-                self.sensors.append(MCP9808.MCP9808(address=i2c_address))
-                #starts the last one added
-                self.sensors[-1].begin()
-                print (self.sensors[-1].readTempC())
-            elif (sensor_type == 'TSYS01'):
-                self.sensors.append(TSYS01.TSYS01(address=i2c_address))
-                print (self.sensors[-1].readTempC())
+            if line:
+                sensor_type,i2c_address =line.split(':')
+                i2c_address=int(i2c_address,0) 
+                print ("adding sensor: "+sensor_type +" Adress: %d " % i2c_address)
+                if (sensor_type == 'MCP9808'):
+                    self.sensors.append(MCP9808.MCP9808(address=i2c_address))
+                    #starts the last one added
+                    self.sensors[-1].begin()
+                    print (self.sensors[-1].readTempC())
+                elif (sensor_type == 'TSYS01'):
+                    self.sensors.append(TSYS01.TSYS01(address=i2c_address))
+                    print (self.sensors[-1].readTempC())
 
         self.mirrors = 0    # state of all mirrors
         # init the GPIO lines as output
