@@ -78,3 +78,55 @@ GPIO lines: list of lines to use, currently in order
 TEMP_SENSORS = list of the i2c temp sensors addresses default first on
 	       is [0x18]
  
+
+
+#Installing on new Pi
+Instructions for pi-DIO onto a brand new Pi in micron
+
+Grab latest raspian distribution and install
+
+
+Install openvpn so we can get network access in department. Standard
+install process is 
+
+ sudo apt install openvpn
+
+Additional programs that are useful
+
+*screen
+
+Required installs with apt
+*git
+*python3-pip
+*python3-smbus
+
+
+Required python isntalls with pip
+*sudo pip install Pyro4
+*sudo pip install RPi.GPIO
+
+Clone and install Adafruit python temp sensor library
+ cd ~
+ git clone https://github.com/adafruit/Adafruit_Python_MCP9808.git
+ cd Adafruit_Python_MCP9808/
+ sudo python setup.py install
+
+Clone this package
+ cd ~
+ git clone https://github.com/iandobbie/pi-DIO.git
+
+
+Clone my TSYS01 code into the pi-DIO directory
+ cd pi-DIO
+ git clone https://github.com/iandobbie/TSYS01.py.git
+ mv TSYS01.py TSYS01
+ 
+create a logs directory
+  mkdir logs
+  
+Edit the RPi.conf to refect your real configuration. Then test run
+with
+ python DIO_server.py
+
+
+
